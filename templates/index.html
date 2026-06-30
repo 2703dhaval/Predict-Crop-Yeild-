@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌾 Crop Yield Prediction & ML Workbench</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Modern CSS Custom Properties & Base Styles */
+        :root {
+            --bg-base: #090d16;
+            --bg-surface: rgba(17, 24, 39, 0.7);
+            --border-glow: rgba(255, 255, 255, 0.08);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            
+            --primary: #14b8a6;
+            --primary-glow: rgba(20, 184, 166, 0.15);
+            --secondary: #6366f1;
+            --secondary-glow: rgba(99, 102, 241, 0.15);
+            --accent: #f97316;
+            --danger: #ef4444;
+            --success: #22c55e;
+            
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(20, 184, 166, 0.1) 0px, transparent 50%);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* Premium Header Styling */
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #14b8a6 0%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .active-file-badge {
+            display: inline-block;
+            margin-top: 0.8rem;
+            padding: 0.3rem 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 30px;
+            font-size: 0.85rem;
+            color: #818cf8;
+            font-weight: 500;
+        }
+
+        /* Glassmorphism Dashboard Cards */
+        .glass-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glow);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-glow);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Responsive Dashboard Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 380px 1fr;
+            }
+        }
+
+        /* Sidebar Control Forms */
+        h2 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Inputs and Select Elements */
+        .form-select, .form-input {
+            width: 100%;
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            padding: 0.8rem 1rem;
+            color: var(--text-main);
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-select:focus, .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-glow);
+        }
+
+        /* Elegant Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.85rem 1.5rem;
+            border-radius: var(--radius-md);
+            border: none;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #0d9488 100%);
+            color: #042f2e;
+            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 20px rgba(20, 184, 166, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Glassmorphic Multi-Model Metrics Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 640px) {
+            .metrics-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .metric-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--border-glow);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .metric-card.rf::before {
+            background: var(--primary);
+        }
+
+        .metric-card.gb::before {
+            background: var(--secondary);
+        }
+
+        .metric-title {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .rf .metric-badge {
+            background: rgba(20, 184, 166, 0.1);
+            color: var(--primary);
+        }
+
+        .gb .metric-badge {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--secondary);
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-val {
+            font-weight: 700;
+            font-family: monospace;
+            font-size: 1rem;
+        }
+
+        /* Winner Announcement Bar */
+        .winner-banner {
+            background: linear-gradient(90deg, rgba(20, 184, 166, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            animation: pulse 3s infinite;
+        }
+
+        .winner-text span {
+            color: #38bdf8;
+            font-weight: 700;
+        }
+
+        /* Premium Tab Interface for Plot Gallery */
+        .tabs-header {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.8rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: rgba(20, 184, 166, 0.15);
+            border: 1px solid rgba(20, 184, 166, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .plot-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .plot-container img:hover {
+            transform: scale(1.01);
+        }
+
+        /* Predictor Input form layout (2 columns) */
+        .predictor-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .predictor-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Predict Results Display Card */
+        .results-box {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: var(--radius-md);
+            text-align: center;
+            animation: slideUp 0.5s ease;
+        }
+
+        .results-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .result-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+        }
+
+        .result-lbl {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .result-val {
+            font-size: 1.4rem;
+            font-family: var(--font-display);
+            font-weight: 800;
+        }
+
+        .result-item.rf .result-val {
+            color: var(--primary);
+        }
+
+        .result-item.gb .result-val {
+            color: var(--secondary);
+        }
+
+        /* Loading Spinner Overlays */
+        .spinner {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        /* Previews and tables */
+        .preview-wrapper {
+            max-height: 250px;
+            overflow-y: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 1rem;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            text-align: left;
+        }
+
+        .preview-table th {
+            background-color: rgba(30, 41, 59, 0.9);
+            padding: 0.6rem;
+            color: #ffffff;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .preview-table td {
+            padding: 0.5rem 0.6rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+        }
+
+        .preview-table tr:hover td {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Keyframes Animations */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { border-color: rgba(99, 102, 241, 0.3); }
+            50% { border-color: var(--primary); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Header -->
+        <header>
+            <h1>🌾 Crop Yield Prediction & ML Workbench</h1>
+            <p>Compare Random Forest & Gradient Boosting Regressors dynamically in real-time</p>
+            <div class="active-file-badge">Project Dataset: <strong>{{ csv_name }}</strong> ({{ shape[0] }} rows)</div>
+        </header>
+        
+        <div class="dashboard-grid">
+            
+            <!-- LEFT COLUMN: Yield Predictor Form Panel -->
+            <div class="sidebar">
+                <div class="glass-card">
+                    <h2>🔮 Yield Predictor</h2>
+                    <form id="predictionForm">
+                        <div class="control-group">
+                            <label for="crop">Select Crop</label>
+                            <select id="crop" name="crop" class="form-select" required>
+                                {% for crop in dropdowns.crops %}
+                                <option value="{{ crop }}">{{ crop }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="state">Select State</label>
+                            <select id="state" name="state" class="form-select" required>
+                                {% for state in dropdowns.states %}
+                                <option value="{{ state }}">{{ state }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="season">Select Season</label>
+                            <select id="season" name="season" class="form-select" required>
+                                {% for season in dropdowns.seasons %}
+                                <option value="{{ season }}">{{ season }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="predictor-grid">
+                            <div class="control-group">
+                                <label for="year">Crop Year</label>
+                                <input type="number" id="year" name="year" class="form-input" value="2020" min="1997" max="2030" required>
+                            </div>
+                            <div class="control-group">
+                                <label for="area">Area (Hectares)</label>
+                                <input type="number" id="area" name="area" class="form-input" value="10000" step="any" required>
+                            </div>
+                        </div>
+                        
+                        <div class="predictor-grid">
+                            <div class="control-group">
+                                <label for="rainfall">Rainfall (mm)</label>
+                                <input type="number" id="rainfall" name="rainfall" class="form-input" value="1500" step="any" required>
+                            </div>
+                            <div class="control-group">
+                                <label for="fertilizer">Fertilizer (kg)</label>
+                                <input type="number" id="fertilizer" name="fertilizer" class="form-input" value="500000" step="any" required>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="pesticide">Pesticide (kg)</label>
+                            <input type="number" id="pesticide" name="pesticide" class="form-input" value="2000" step="any" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" id="predictBtn">
+                            <span>⚡ Predict Crop Yield</span>
+                        </button>
+                    </form>
+                    
+                    <!-- Prediction Results Box -->
+                    <div class="results-box" id="resultsBox">
+                        <div class="results-title">Yield Projections</div>
+                        <div class="results-grid">
+                            <div class="result-item rf">
+                                <div class="result-lbl">Random Forest</div>
+                                <div class="result-val" id="rfResult">-</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">tons / hectare</div>
+                            </div>
+                            <div class="result-item gb">
+                                <div class="result-lbl">Gradient Boosting</div>
+                                <div class="result-val" id="gbResult">-</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">tons / hectare</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RIGHT COLUMN: Dashboard Visualization -->
+            <div class="main-panel">
+                
+                <!-- Comparison Metrics Box -->
+                <div class="glass-card">
+                    <h2>📊 Comparative Evaluation Metrics</h2>
+                    
+                    <div class="metrics-grid">
+                        <!-- RF Card -->
+                        <div class="metric-card rf">
+                            <div class="metric-title">
+                                Random Forest
+                                <span class="metric-badge">Ensemble Bagging</span>
+                            </div>
+                            <div class="metric-row">
+                                <span>R^2 Score (Accuracy)</span>
+                                <span class="metric-val" style="color: var(--primary);">{{ "%.4f"|format(metrics.rf.r2) }}</span>
+                            </div>
+                            <div class="metric-row">
+                                <span>MAE (Lower is Better)</span>
+                                <span class="metric-val">{{ "%.4f"|format(metrics.rf.mae) }}</span>
+                            </div>
+                            <div class="metric-row">
+                                <span>RMSE (Lower is Better)</span>
+                                <span class="metric-val">{{ "%.4f"|format(metrics.rf.rmse) }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- GB Card -->
+                        <div class="metric-card gb">
+                            <div class="metric-title">
+                                Gradient Boosting
+                                <span class="metric-badge">Sequential Boosting</span>
+                            </div>
+                            <div class="metric-row">
+                                <span>R^2 Score (Accuracy)</span>
+                                <span class="metric-val" style="color: var(--secondary);">{{ "%.4f"|format(metrics.gb.r2) }}</span>
+                            </div>
+                            <div class="metric-row">
+                                <span>MAE (Lower is Better)</span>
+                                <span class="metric-val">{{ "%.4f"|format(metrics.gb.mae) }}</span>
+                            </div>
+                            <div class="metric-row">
+                                <span>RMSE (Lower is Better)</span>
+                                <span class="metric-val">{{ "%.4f"|format(metrics.gb.rmse) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="winner-banner">
+                        <div class="winner-text">
+                            🏆 Recommended Algorithm: <span>{{ winner }}</span>
+                        </div>
+                        <button class="btn btn-secondary" style="width: auto; padding: 0.5rem 1rem; font-size: 0.85rem;" id="retrainBtn">
+                            🔄 Force Retrain Models
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Visualization Gallery Tabs -->
+                <div class="glass-card">
+                    <h2>📈 Analytical Graphics Dashboard</h2>
+                    
+                    <div class="tabs-header">
+                        <button class="tab-btn active" onclick="switchTab(event, 'tab1')">Yield Distribution</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'tab2')">Correlations</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'tab3')">Top Crops</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'tab4')">Rainfall / Fertilizer</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'tab5')">Yield Trend</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'tab6')">Accuracy Comp</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'tab7')">Features Weight</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'tab8')">Residuals</button>
+                    </div>
+                    
+                    <!-- Plot Tabs Content -->
+                    <div id="tab1" class="tab-content active">
+                        <div class="plot-container">
+                            {% if plots.plot_1 %}
+                            <img src="data:image/png;base64,{{ plots.plot_1 }}" alt="Yield Distribution plot">
+                            {% else %}
+                            <p style="color: var(--danger);">Plot error: could not load Yield Distribution. Please click Force Retrain.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div id="tab2" class="tab-content">
+                        <div class="plot-container">
+                            {% if plots.plot_2 %}
+                            <img src="data:image/png;base64,{{ plots.plot_2 }}" alt="Correlation Heatmap">
+                            {% else %}
+                            <p style="color: var(--danger);">Plot error: could not load Correlation Heatmap.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div id="tab3" class="tab-content">
+                        <div class="plot-container">
+                            {% if plots.plot_3 %}
+                            <img src="data:image/png;base64,{{ plots.plot_3 }}" alt="Top Crops average yield">
+                            {% else %}
+                            <p style="color: var(--danger);">Plot error: could not load Top Crops average yield.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div id="tab4" class="tab-content">
+                        <div class="plot-container" style="display: flex; flex-direction: column; gap: 1rem;">
+                            {% if plots.plot_4 and plots.plot_5 %}
+                            <img src="data:image/png;base64,{{ plots.plot_4 }}" alt="Rainfall vs Yield">
+                            <img src="data:image/png;base64,{{ plots.plot_5 }}" alt="Fertilizer vs Yield">
+                            {% else %}
+                            <p style="color: var(--danger);">Plot error: could not load Rainfall/Fertilizer plots.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div id="tab5" class="tab-content">
+                        <div class="plot-container">
+                            {% if plots.plot_6 %}
+                            <img src="data:image/png;base64,{{ plots.plot_6 }}" alt="Average Yield Trend">
+                            {% else %}
+                            <p style="color: var(--danger);">Plot error: could not load average yield trend.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div id="tab6" class="tab-content">
+                        <div class="plot-container" style="display: flex; flex-direction: column; gap: 1rem;">
+                            {% if plots.plot_7 and plots.plot_8 %}
+                            <img src="data:image/png;base64,{{ plots.plot_7 }}" alt="Model Comparison metrics">
+                            <img src="data:image/png;base64,{{ plots.plot_8 }}" alt="Actual vs Predicted Yield plot">
+                            {% else %}
+                            <p style="color: var(--danger);">Plot error: could not load model comparison/accuracy plots.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div id="tab7" class="tab-content">
+                        <div class="plot-container">
+                            {% if plots.plot_9 %}
+                            <img src="data:image/png;base64,{{ plots.plot_9 }}" alt="Feature Importance Analysis">
+                            {% else %}
+                            <p style="color: var(--danger);">Plot error: could not load feature importance analysis.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div id="tab8" class="tab-content">
+                        <div class="plot-container">
+                            {% if plots.plot_10 %}
+                            <img src="data:image/png;base64,{{ plots.plot_10 }}" alt="Residuals Distribution plot">
+                            {% else %}
+                            <p style="color: var(--danger);">Plot error: could not load residuals distribution.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dataset Table Preview -->
+                <div class="glass-card">
+                    <h2>📋 Cleaned Raw Dataset Preview (First 10 rows)</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Confirm preprocessed shape and verify formatting validations</p>
+                    
+                    <div class="preview-wrapper">
+                        {{ preview | safe }}
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Frontend Interactive Scripts -->
+    <script>
+        // Tab switcher script
+        function switchTab(evt, tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.remove('active'));
+            
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // Handle Model Force Retraining
+        document.getElementById('retrainBtn').addEventListener('click', function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner" style="width: 1rem; height: 1rem;"></span> Retraining...';
+
+            fetch('/train', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Success: ' + data.message);
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            })
+            .catch(err => {
+                alert('Connection error.');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            });
+        });
+
+        // Handle Yield Prediction Form Submission
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('predictBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner" style="width: 1.2rem; height: 1.2rem;"></span> Executing algorithms...';
+
+            const formData = new FormData(this);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+
+                if (data.success) {
+                    document.getElementById('resultsBox').style.display = 'block';
+                    document.getElementById('rfResult').innerText = data.rf_pred;
+                    document.getElementById('gbResult').innerText = data.gb_pred;
+                    
+                    // Smooth scroll to results
+                    document.getElementById('resultsBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    alert('Prediction failed: ' + (data.error || 'Unknown error.'));
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                alert('Connection error.');
+                console.error(err);
+            });
+        });
+    </script>
+</body>
+</html>
